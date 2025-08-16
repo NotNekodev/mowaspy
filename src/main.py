@@ -1,21 +1,22 @@
-import folium
-from de.de import add_de_warnings
-
 from starlette.applications import Starlette
-from starlette.responses import JSONResponse, HTMLResponse
+from starlette.responses import HTMLResponse
 from starlette.requests import Request
 from starlette.routing import Route
+
+import importlib
+import pkgutil
+import api
+from decorator import get_registered_routes
+
 
 async def index(request: Request):
     return HTMLResponse("<h1>1337</h1>")
 
-async def api_de(request: Request):
-    # make it all async (sync request is slow)
-    m = folium.Map(location=[51.0, 10.0], zoom_start=6)
-    add_de_warnings(m)
-    return JSONResponse(m.to_dict())
 
-app = Starlette(debug=True, routes=[
-    Route('/', index),
-    Route('/data/de', api_de)
-])
+for loader, module_name, is_pkg in pkgutil.iter_modules(api.__path__):
+    importlib.import_module(f"api.{module_name}")
+
+routes = [Route("/", index)] + [
+    Route(r["path"], r["handler"]) for r in get_registered_routes()
+]
+app = Starlette(debug=True, routes=routes)
