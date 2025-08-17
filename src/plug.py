@@ -4,6 +4,11 @@ import importlib.util
 import os
 import inspect
 from pathlib import Path
+import logging
+from map import logger_main
+
+logger_plug = logger_main
+
 
 class CountryPlugin(ABC):
     """Base interface for country-specific plugins"""
@@ -24,6 +29,11 @@ class CountryPlugin(ABC):
     def refresh_alerts_on_map(self, map_object: Any) -> None:
         pass
 
+    @abstractmethod
+    def get_alerts(self) -> List[Any]:
+        """Return the list of alerts"""
+        pass
+
 class PluginLoader:
     def __init__(self, plugins_directory: str = "plugins"):
         self.plugins_directory = Path(plugins_directory)
@@ -34,7 +44,7 @@ class PluginLoader:
         plugin_classes = []
         
         if not self.plugins_directory.exists():
-            print(f"Plugins directory '{self.plugins_directory}' does not exist")
+            logger_plug.error(f"Plugins directory '{self.plugins_directory}' does not exist")
             return plugin_classes
         
         for file_path in self.plugins_directory.glob("*.py"):
@@ -52,11 +62,11 @@ class PluginLoader:
                     if (issubclass(obj, CountryPlugin) and 
                         obj is not CountryPlugin):
                         plugin_classes.append(obj)
-                        print(f"Discovered plugin: {name} in {file_path.name}")
+                        logger_plug.info(f"Discovered plugin: {name} in {file_path.name}")
                         
             except Exception as e:
-                print(f"Error loading plugin from {file_path}: {e}")
-        
+                logger_plug.error(f"Error loading plugin from {file_path}: {e}")
+
         return plugin_classes
 
     def load_plugins(self) -> List[CountryPlugin]:
@@ -69,10 +79,10 @@ class PluginLoader:
                 plugin_instance = plugin_class()
                 plugin_instance.initialize()
                 self.loaded_plugins.append(plugin_instance)
-                print(f"Loaded country plugin: {plugin_instance.get_country_code()}")
+                logger_plug.info(f"Loaded country plugin: {plugin_instance.get_country_code()}")
             except Exception as e:
-                print(f"Error instantiating country plugin {plugin_class.__name__}: {e}")
-        
+                logger_plug.error(f"Error instantiating country plugin {plugin_class.__name__}: {e}")
+
         return self.loaded_plugins
 
     def get_plugin_by_country_code(self, country_code: str) -> CountryPlugin:
@@ -85,25 +95,31 @@ class PluginLoader:
     def list_plugins(self) -> None:
         """List all loaded plugins with their descriptions"""
         if not self.loaded_plugins:
-            print("No country plugins loaded")
+            logger_plug.info("No country plugins loaded")
             return
 
-        print("Loaded country plugins:")
-        print("-" * 50)
+        logger_plug.info("Loaded country plugins:")
+        logger_plug.info("-" * 50)
         for plugin in self.loaded_plugins:
-            print(f"ISO Country Code: {plugin.get_country_code()}")
-            print("-" * 50)
+            logger_plug.info(f"ISO Country Code: {plugin.get_country_code()}")
+            logger_plug.info("-" * 50)
 
     def add_alerts_to_map(self, map):
         for plugin in self.loaded_plugins:
             try:
                 plugin.add_alerts_to_map(map)
             except Exception as e:
-                print(f"Error adding alerts for {plugin.get_country_code()}: {e}")
+                logger_plug.error(f"Error adding alerts for {plugin.get_country_code()}: {e}")
 
     def update_countries(self, map):
         for plugin in self.loaded_plugins:
             try:
                 plugin.refresh_alerts_on_map(map)
             except Exception as e:
-                print(f"Error updating alerts for {plugin.get_country_code()}: {e}")
+                logger_plug.error(f"Error updating alerts for {plugin.get_country_code()}: {e}")
+
+    def get_alerts(self) -> List[Any]:
+        alerts = []
+        for plugin in self.loaded_plugins:
+            alerts.extend(plugin.get_alerts())
+        return alerts

@@ -2,10 +2,14 @@
     background-color: black;
     color: white;
     border-radius: 6px;
+    border: none;
+    max-height: 300px !important;
+    overflow-y: auto !important;
 }
 
 .leaflet-popup-tip {
     background: black;
+    border: none;
 }
 
 .leaflet-tooltip {
@@ -13,6 +17,28 @@
     border-radius: 6px;
     font-weight: bold;
     color: white;
+    border: none;
+}
+
+.leaflet-clickable:focus,
+.leaflet-interactive:focus {
+    outline: none;
+}
+
+.leaflet-tooltip-top:before {
+    border-top-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+.leaflet-tooltip-bottom:before {
+    border-bottom-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+.leaflet-tooltip-left:before {
+    border-left-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+.leaflet-tooltip-right:before {
+    border-right-color: rgba(0, 0, 0, 0.9) !important;
 }
 
 ::-webkit-scrollbar {
@@ -22,4 +48,65 @@
 * {
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: white;
+}
+
+#map {
+    height: 100vh;
+    width: 100%;
+}
+
+.connection-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.status-connected {
+    color: #4CAF50;
+}
+
+.status-disconnected {
+    color: #f44336;
+}
+
+.status-connecting {
+    color: #ff9800;
+}
+
+.alert-counter {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #2196F3;
+}
+
+
+.title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.custom-marker-icon {
+    border-radius: 4px;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
