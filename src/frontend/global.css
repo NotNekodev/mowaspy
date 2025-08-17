@@ -1,0 +1,25 @@
+.leaflet-popup-content-wrapper {
+    background-color: black;
+    color: white;
+    border-radius: 6px;
+}
+
+.leaflet-popup-tip {
+    background: black;
+}
+
+.leaflet-tooltip {
+    background-color: black;
+    border-radius: 6px;
+    font-weight: bold;
+    color: white;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

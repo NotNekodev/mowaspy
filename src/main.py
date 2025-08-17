@@ -8,9 +8,14 @@ import pkgutil
 import api
 from decorator import get_registered_routes
 
+from map import NoctoMap
+
+map = NoctoMap()
 
 async def index(request: Request):
-    return HTMLResponse("<h1>1337</h1>")
+    map.iterate_over_countries()
+
+    return HTMLResponse(map.render())
 
 
 for loader, module_name, is_pkg in pkgutil.iter_modules(api.__path__):

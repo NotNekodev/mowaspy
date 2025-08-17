@@ -29,7 +29,7 @@ Nocto is built on a robust backend architecture that utilizes official governmen
 Contributors can extend Nocto's coverage by implementing support for additional countries:
 
 1. Create a new Python module in the appropriate directory
-2. Implement the `CountryBackend` interface for your target country
+2. Implement the `CountryPlugin` interface for your target country
 3. Configure the API endpoints and data mapping for the country's alert system
 4. Submit a pull request with comprehensive documentation
 
