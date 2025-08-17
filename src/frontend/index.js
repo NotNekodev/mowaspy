@@ -154,36 +154,33 @@ function addAlert(alert) {
 
         const alertLayerGroup = L.layerGroup();
 
-        if (geojson && geojson.features && geojson.features.length > 0) {
-            try {
-                const geoJsonLayer = L.geoJSON(geojson, {
-                    style: {
-                        color: (style_props && style_props.strokeColor) || 'red',
-                        weight: (style_props && style_props.strokeWeight) || 2,
-                        fillColor: (style_props && style_props.fillColor) || 'yellow',
-                        fillOpacity: (style_props && style_props.fillOpacity) || 0.3,
-                        opacity: 0.8
-                    },
-                    onEachFeature: function (feature, layer) {
-                        if (html_popup) {
-                            layer.bindPopup(html_popup, {
-                                maxHeight: 300
-                            });
-                        }
-                        if (html_tooltip) {
-                            layer.bindTooltip(html_tooltip, {
-                                sticky: true
-                            });
-                        }
-                    }
-                });
 
-                alertLayerGroup.addLayer(geoJsonLayer);
-            } catch (geoError) {
-                console.error('Error creating GeoJSON layer:', geoError);
-            }
-        } else {
-            console.warn('No valid GeoJSON data found');
+        try {
+            const geoJsonLayer = L.geoJSON(geojson, {
+                style: {
+                    color: (style_props && style_props.strokeColor) || 'red',
+                    weight: (style_props && style_props.strokeWeight) || 2,
+                    fillColor: (style_props && style_props.fillColor) || 'yellow',
+                    fillOpacity: (style_props && style_props.fillOpacity) || 0.3,
+                    opacity: 0.8
+                },
+                onEachFeature: function (feature, layer) {
+                    if (html_popup) {
+                        layer.bindPopup(html_popup, {
+                            maxHeight: 300
+                        });
+                    }
+                    if (html_tooltip) {
+                        layer.bindTooltip(html_tooltip, {
+                            sticky: true
+                        });
+                    }
+                }
+            });
+
+            alertLayerGroup.addLayer(geoJsonLayer);
+        } catch (geoError) {
+            console.error('Error creating GeoJSON layer:', geoError);
         }
 
         let marker;
@@ -255,6 +252,30 @@ map.on('zoomend', function () {
                 layerGroup.removeLayer(layer);
             } else if (!layerGroup.hasLayer(layer)) {
                 layerGroup.addLayer(layer);
+            }
+        });
+    });
+});*/
+
+/*map.on('zoomend', function () {
+
+    const currentZoom = map.getZoom();
+    console.log("Current zoom level:", currentZoom);
+
+    Object.values(alertLayers).forEach(layerGroup => {
+        layerGroup.eachLayer(layer => {
+            if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
+                if (currentZoom < 3) {
+                    map.removeLayer(layer);
+                } else {
+                    map.addLayer(layer);
+                }
+            } else if (layer instanceof L.GeoJSON || layer instanceof L.Polygon) {
+                if (currentZoom < 8) {
+                    map.removeLayer(layer);
+                } else {
+                    map.addLayer(layer);
+                }
             }
         });
     });

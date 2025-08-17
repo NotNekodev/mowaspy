@@ -5,7 +5,11 @@ import os
 import inspect
 from pathlib import Path
 import logging
-from map import logger_main
+
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s[%(levelname)s]: %(message)s')
+
+logger_main = logging.getLogger("nocto-core")
 
 logger_plug = logger_main
 

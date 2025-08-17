@@ -14,7 +14,8 @@ import asyncio
 import gzip
 import logging
 
-from map import NoctoMap, logger_main # in map because circular import stuff
+from map import NoctoMap 
+from plug import logger_main # in map because circular import stuff
 
 connected_clients: List[WebSocket] = []
 map = NoctoMap()

@@ -1,11 +1,6 @@
 import folium
-from plug import PluginLoader
+from plug import PluginLoader, logger_main
 from typing import List
-import logging
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s[%(levelname)s]: %(message)s')
-
-logger_main = logging.getLogger("nocto-core")
 
 class NoctoMap:
     def __init__(self):
