@@ -1,10 +1,12 @@
+from starlette.responses import JSONResponse
 import folium
+from decorator import api_route 
 import requests
 from folium import IFrame
 import shapely.geometry as shape
 
-def add_de_warnings(m):
 
+def add_de_warnings(m):
     custom_css = """
     <style>
     .leaflet-popup-content-wrapper {
@@ -45,63 +47,75 @@ def add_de_warnings(m):
 
                     event = actual_info["event"]
                     severity = actual_info["severity"]
-                    event_code = actual_info["eventCode"][0].get("value", "Unknown Event Code")
-
-
-                    # check if the id starts with dwd
-                    if warning['id'].startswith("dwd"):
-                        event_code_icon_url = f"{base_url}/appdata/gsb/eventCodes/BBK-EVC-062.png"
-                    else:
-                        event_code_icon_url = f"{base_url}/appdata/gsb/eventCodes/{event_code}.png"
-                    print(f"Event Code Icon URL: {event_code_icon_url}")
-                    event_code_icon = folium.CustomIcon(
-                        icon_image=event_code_icon_url,
-                        icon_size=(30, 30)
+                    event_code = actual_info["eventCode"][0].get(
+                        "value", "Unknown Event Code"
                     )
 
-                    print(f"Event: {event}, Severity: {severity}, Event Code: {event_code}")
+                    # check if the id starts with dwd
+                    if warning["id"].startswith("dwd"):
+                        event_code_icon_url = (
+                            f"{base_url}/appdata/gsb/eventCodes/BBK-EVC-062.png"
+                        )
+                    else:
+                        event_code_icon_url = (
+                            f"{base_url}/appdata/gsb/eventCodes/{event_code}.png"
+                        )
+                    print(f"Event Code Icon URL: {event_code_icon_url}")
+                    event_code_icon = folium.CustomIcon(
+                        icon_image=event_code_icon_url, icon_size=(30, 30)
+                    )
 
+                    print(
+                        f"Event: {event}, Severity: {severity}, Event Code: {event_code}"
+                    )
 
                 if geojson_response.status_code == 200:
                     geojson_data = geojson_response.json()
 
-                    feature = geojson_data['features'][0]  # or loop over them
+                    feature = geojson_data["features"][0]  # or loop over them
                     properties = feature.get("properties", {})
 
                     html = f"""
                     <style>
                     .title {{
-                        color: {properties.get('fillColor', 'white')};
+                        color: {properties.get("fillColor", "white")};
                     }}
                     body {{
                         background-color: black;
                         color: white;
                     }}
                     </style>
-                    <b class="title">{actual_info['headline']}</b><br><br>
-                    {actual_info['description']}
+                    <b class="title">{actual_info["headline"]}</b><br><br>
+                    {actual_info["description"]}
                     """
 
                     html_tooltip = f"""
                     <style>
                     .title {{
-                        color: {properties.get('fillColor', 'white')};
+                        color: {properties.get("fillColor", "white")};
                     }}
                     </style>
-                    <b class="title">{actual_info['headline']}</br></b>
-                    <p class=""><i>{actual_info['event']}</i></p>
+                    <b class="title">{actual_info["headline"]}</br></b>
+                    <p class=""><i>{actual_info["event"]}</i></p>
                     """
 
                     iframe = IFrame(html=html, width=300, height=300)
 
-                    polygon = shape.Polygon([(point[0], point[1]) for point in geojson_data['features'][0]['geometry']['coordinates'][0]])
+                    polygon = shape.Polygon(
+                        [
+                            (point[0], point[1])
+                            for point in geojson_data["features"][0]["geometry"][
+                                "coordinates"
+                            ][0]
+                        ]
+                    )
                     centroid = polygon.centroid
 
                     folium.Marker(
                         location=[centroid.y, centroid.x],
                         icon=event_code_icon,
                         tooltip=folium.Tooltip(html_tooltip, parse_html=True),
-                        popup=folium.Popup(iframe, max_width=400)
+                        popup=folium.Popup(iframe, max_width=400),
                     ).add_to(m)
 
                     folium.GeoJson(
@@ -111,10 +125,17 @@ def add_de_warnings(m):
                             "weight": feature["properties"].get("strokeWeight", 1),
                             "fillColor": feature["properties"].get("fillColor", "gray"),
                             "fillOpacity": 0.5,
-                    },
-                    tooltip=folium.Tooltip(html_tooltip, parse_html=True),
-                    popup=folium.Popup(iframe, max_width=400)
-                ).add_to(m)
+                        },
+                        tooltip=folium.Tooltip(html_tooltip, parse_html=True),
+                        popup=folium.Popup(iframe, max_width=400),
+                    ).add_to(m)
 
         else:
             print(f"Error fetching warnings from {warning_provider}")
+
+
+@api_route("/api/de")
+async def de_warnings(request):
+    m = folium.Map(location=[51.0, 10.0], zoom_start=6)
+    add_de_warnings(m)
+    return JSONResponse(m.to_dict())
