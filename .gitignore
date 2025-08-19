@@ -5,3 +5,4 @@ __pycache__/
 .DS_Store
 map.html
 .venv
+playground/classifier.pkl
